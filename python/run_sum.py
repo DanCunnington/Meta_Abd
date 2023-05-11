@@ -20,7 +20,7 @@ def weights_init(m):
 
 
 def one_shot_pretrain(model, mnist_imgs_train,
-                      device=torch.device('cuda'), **kwargs):
+                      device=torch.device('cpu'), **kwargs):
     n_samples = 1
     EPOCHS = 20
     LR = 1
@@ -81,7 +81,7 @@ def main():
     for e in examples:
         all_img_indices = all_img_indices + e.x_idxs
 
-    device = torch.device("cuda")
+    device = torch.device("cpu")
     p_model = Net(n_labels).to(device)
     print(p_model)
     p_model.apply(weights_init)

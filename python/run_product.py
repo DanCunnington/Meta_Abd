@@ -1,5 +1,6 @@
 import asyncio
 import random
+import argparse
 
 import torch
 import torch.optim as optim
@@ -12,7 +13,7 @@ from perception import Net, train
 
 
 def one_shot_pretrain(model, mnist_imgs_train,
-                      device=torch.device('cuda'), **kwargs):
+                      device=torch.device('cpu'), **kwargs):
     n_samples = 1
     EPOCHS = 20
     LR = 1
@@ -46,6 +47,11 @@ def one_shot_pretrain(model, mnist_imgs_train,
 
 
 def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--seed', default=1)
+    args = parser.parse_args()
+    random.seed(args.seed)
+    torch.manual_seed(args.seed)
     task_name = 'myprod_full'
     data_path = '../data/monadic/'
     tmp_bk_dir = '../prolog/tmp_pl/'
@@ -68,19 +74,19 @@ def main():
     for e in examples:
         all_img_indices = all_img_indices + e.x_idxs
 
-    device = torch.device("cuda")
+    device = torch.device("cpu")
     p_model = Net(n_labels).to(device)
     print(p_model)
 
         # Learning with abduction
     EPOCHS = 50
     N_BATCHES = 3000
-    N_CORES = 20  # number of parallel abductions
-    NN_EPOCHS = 2
-    LR = 0.001
-    GAMMA = 0.9
+    N_CORES = 8  # number of parallel abductions
+    NN_EPOCHS = 1
+    LR = 0.01
+    GAMMA = 1.0
     LOG_INTERVAL = 500
-    NUM_WORKERS = 20
+    NUM_WORKERS = 2
 
     kwargs = {'batch_size': 64}
     kwargs.update({'num_workers': NUM_WORKERS,
@@ -91,14 +97,17 @@ def main():
     if ONE_SHOT_PRETRAIN:
         one_shot_pretrain(p_model, imgs_train, **kwargs)
 
-    optimizer = optim.Adam(p_model.parameters(), lr=LR)
-    scheduler = StepLR(optimizer, step_size=1, gamma=GAMMA)
+    # optimizer = optim.Adam(p_model.parameters(), lr=LR)
+    # scheduler = StepLR(optimizer, step_size=1, gamma=GAMMA)
 
     sem = asyncio.Semaphore(N_CORES)
     loop = asyncio.get_event_loop()
 
     try:
         for T in range(EPOCHS):
+            lr_t = LR*(1 + r)**T # increase learning rate during iteration
+            optimizer = optim.SGD(p_model.parameters(), lr=lr_t)
+            scheduler = StepLR(optimizer, step_size=1, gamma=GAMMA)
             # if T >= 30:
             #     N_BATCHES = N_BATCHES + 50
             print("======\nEpoch {}\n======".format(T))
