@@ -85,6 +85,7 @@ def main():
     NN_EPOCHS = 1
     LR = 0.01
     GAMMA = 1.0
+    r = 0.005 # speed for adapting learning rate
     LOG_INTERVAL = 500
     NUM_WORKERS = 2
 
