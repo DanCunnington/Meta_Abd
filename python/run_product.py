@@ -50,8 +50,8 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--seed', default=1)
     args = parser.parse_args()
-    random.seed(seed)
-    torch.manual_seed(seed)
+    random.seed(args.seed)
+    torch.manual_seed(args.seed)
     task_name = 'myprod_full'
     data_path = '../data/monadic/'
     tmp_bk_dir = '../prolog/tmp_pl/'
