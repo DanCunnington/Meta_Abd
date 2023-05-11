@@ -50,6 +50,10 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--seed', default=1)
     args = parser.parse_args()
+    print('############')
+    print("SETTING SEED: ")
+    print(args.seed)
+    print('############')
     random.seed(args.seed)
     torch.manual_seed(args.seed)
     task_name = 'myprod_full'
