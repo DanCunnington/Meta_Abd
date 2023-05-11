@@ -187,7 +187,7 @@ def train_abduce_concurrent(loop, sem, batches, model, optimizer, scheduler,
                             bk_file='../arithmetic_bk.pl',
                             pl_file_dir='../prolog/tmp/',
                             clp_range='0..9',
-                            timeout=10, device=torch.device("cuda"),
+                            timeout=10, device=torch.device("cpu"),
                             epochs=10, log_interval=500, **kwargs):
     train_img_indices = []  # images for updating neural model
     train_img_targets = []  # logically abduced labels
